@@ -1,0 +1,15 @@
+# ─── RepoExplainer Environment Variables ───────────────────────
+# Copy this file to .env and fill in your values
+
+# Required: Groq API key for LLM explanations
+# Get one free at: https://console.groq.com
+GROQ_API_KEY=YOUR_API_KEY
+
+# Optional: GitHub Personal Access Token
+# Increases API rate limit from 60 to 5000 req/hr
+# Generate at: https://github.com/settings/tokens (no scopes needed for public repos)
+GITHUB_TOKEN=YOUR_TOKEN
+
+# Flask
+SECRET_KEY=YOUR_SECRET_KEY
+FLASK_ENV=development
