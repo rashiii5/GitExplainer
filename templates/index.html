@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RepoExplainer — AI-Powered Code Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- ─── HEADER ─── -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">⬡</span>
+      <span class="logo-text">RepoExplainer</span>
+      <span class="logo-badge">AI</span>
+    </div>
+    <div class="header-meta">CodeBERT · FAISS · RAG · MCP</div>
+  </header>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="grid-lines"></div>
+      <div class="glow-orb glow-1"></div>
+      <div class="glow-orb glow-2"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Understand Any<br/>
+        <span class="hero-accent">GitHub Repo</span><br/>
+        Instantly.
+      </h1>
+      <p class="hero-sub">
+        Drop a GitHub link. Get architecture breakdowns, code explanations,<br/>
+        dependency graphs, and an interactive Q&amp;A — powered by CodeBERT + RAG.
+      </p>
+
+      <!-- URL Input -->
+      <div class="input-bar" id="inputBar">
+        <span class="input-prefix">github.com/</span>
+        <input
+          type="text"
+          id="repoUrl"
+          class="url-input"
+          placeholder="owner/repository or full URL"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">
+          <span class="btn-text">Analyze</span>
+          <span class="btn-icon">→</span>
+        </button>
+      </div>
+      <div class="example-links">
+        Try:
+        <a href="#" onclick="fillExample('https://github.com/pallets/flask')">pallets/flask</a>
+        <a href="#" onclick="fillExample('https://github.com/tiangolo/fastapi')">tiangolo/fastapi</a>
+        <a href="#" onclick="fillExample('https://github.com/huggingface/transformers')">huggingface/transformers</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROGRESS ─── -->
+  <section class="progress-section hidden" id="progressSection">
+    <div class="progress-card">
+      <div class="progress-header">
+        <span class="progress-repo-name" id="progressRepoName">Analyzing...</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-steps">
+        <div class="step" id="step1">① Fetching repository</div>
+        <div class="step" id="step2">② Preprocessing files</div>
+        <div class="step" id="step3">③ Parsing AST</div>
+        <div class="step" id="step4">④ Embedding with CodeBERT</div>
+        <div class="step" id="step5">⑤ Building FAISS index</div>
+        <div class="step" id="step6">⑥ Generating overview</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DASHBOARD ─── -->
+  <section class="dashboard hidden" id="dashboard">
+
+    <!-- Repo Meta -->
+    <div class="meta-strip" id="metaStrip">
+      <div class="meta-item"><span class="meta-label">Repository</span><span class="meta-val" id="metaName">—</span></div>
+      <div class="meta-item"><span class="meta-label">Language</span><span class="meta-val" id="metaLang">—</span></div>
+      <div class="meta-item"><span class="meta-label">Stars</span><span class="meta-val" id="metaStars">—</span></div>
+      <div class="meta-item"><span class="meta-label">Files</span><span class="meta-val" id="metaFiles">—</span></div>
+      <div class="meta-item"><span class="meta-label">Chunks</span><span class="meta-val" id="metaChunks">—</span></div>
+    </div>
+
+    <div class="dashboard-grid">
+
+      <!-- Left column -->
+      <div class="col-left">
+
+        <!-- Overview -->
+        <div class="card" id="overviewCard">
+          <div class="card-header">
+            <span class="card-icon">◈</span>
+            <h2>Project Overview</h2>
+          </div>
+          <div class="card-body markdown-body" id="overviewText">Loading...</div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="card" id="techCard">
+          <div class="card-header">
+            <span class="card-icon">⬡</span>
+            <h2>Tech Stack</h2>
+          </div>
+          <div class="card-body">
+            <div class="lang-badges" id="langBadges"></div>
+            <div class="framework-list" id="frameworkList"></div>
+          </div>
+        </div>
+
+        <!-- Dependencies -->
+        <div class="card" id="depCard">
+          <div class="card-header">
+            <span class="card-icon">⬢</span>
+            <h2>Top Dependencies</h2>
+          </div>
+          <div class="card-body">
+            <div class="dep-bars" id="depBars"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="col-right">
+
+        <!-- Q&A -->
+        <div class="card chat-card" id="qaCard">
+          <div class="card-header">
+            <span class="card-icon">◉</span>
+            <h2>Ask Anything</h2>
+          </div>
+          <div class="chat-window" id="chatWindow">
+            <div class="chat-msg assistant">
+              <span class="msg-icon">◈</span>
+              <div class="msg-text">Repository indexed! Ask me anything about the code — architecture, specific functions, how modules connect, or potential bugs.</div>
+            </div>
+          </div>
+          <div class="chat-suggestions" id="suggestions">
+            <button onclick="sendQuery('What does this project do?')">What does this project do?</button>
+            <button onclick="sendQuery('Explain the main entry point')">Explain the main entry point</button>
+            <button onclick="sendQuery('How is authentication handled?')">Authentication handling</button>
+            <button onclick="sendQuery('What are the main API routes?')">Main API routes</button>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="queryInput" class="chat-input" placeholder="Ask about the code..." onkeydown="if(event.key==='Enter')sendQuery()" />
+            <button class="send-btn" onclick="sendQuery()">⌤</button>
+          </div>
+        </div>
+
+        <!-- File Explorer -->
+        <div class="card file-card" id="fileCard">
+          <div class="card-header">
+            <span class="card-icon">◧</span>
+            <h2>File Explorer</h2>
+            <input type="text" class="file-search" id="fileSearch" placeholder="Filter files..." oninput="filterFiles()" />
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FILE EXPLAIN MODAL ─── -->
+  <div class="modal-overlay hidden" id="explainModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-file" id="modalFileName">file.py</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body markdown-body" id="modalBody">Analyzing...</div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
