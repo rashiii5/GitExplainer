@@ -13,17 +13,82 @@ function fillExample(url) {
 }
 
 function parseMarkdown(text) {
+  // Normalize line endings
+  text = text.replace(/\r\n/g, "\n").trim();
+
+  const lines = text.split("\n");
+  let html = "";
+  let inList = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // ===== Horizontal line (==== or more)
+    if (/^={2,}$/.test(line.trim())) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += "<hr>";
+      continue;
+    }
+
+    // Headings: ####, ###, ##, #
+    const h4 = line.match(/^#{4}\s+(.+)/);
+    const h3 = line.match(/^#{3}\s+(.+)/);
+    const h2 = line.match(/^#{2}\s+(.+)/);
+    const h1 = line.match(/^#{1}\s+(.+)/);
+
+    if (h4 || h3) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += `<h3>${inline(h4 ? h4[1] : h3[1])}</h3>`;
+      continue;
+    }
+    if (h2) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += `<h2>${inline(h2[1])}</h2>`;
+      continue;
+    }
+    if (h1) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += `<h1>${inline(h1[1])}</h1>`;
+      continue;
+    }
+
+    // Bullet: *, -, •
+    const bullet = line.match(/^[\*\-•]\s+(.+)/);
+    if (bullet) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += `<li>${inline(bullet[1])}</li>`;
+      continue;
+    }
+
+    // Numbered list
+    const numbered = line.match(/^\d+\.\s+(.+)/);
+    if (numbered) {
+      if (!inList) { html += "<ul>"; inList = true; }
+      html += `<li>${inline(numbered[1])}</li>`;
+      continue;
+    }
+
+    // Empty line
+    if (!line.trim()) {
+      if (inList) { html += "</ul>"; inList = false; }
+      html += `<div class="md-spacer"></div>`;
+      continue;
+    }
+
+    // Regular paragraph
+    if (inList) { html += "</ul>"; inList = false; }
+    html += `<p>${inline(line)}</p>`;
+  }
+
+  if (inList) html += "</ul>";
+  return html;
+}
+
+function inline(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-    .replace(/^\* (.+)$/gm, "<li>$1</li>")
-    .replace(/^- (.+)$/gm, "<li>$1</li>")
-    .replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>")
-    .replace(/\n\n/g, "<br/><br/>")
-    .replace(/\n/g, "<br/>");
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function normalizeGithubUrl(input) {
@@ -194,6 +259,14 @@ function renderDashboard(data) {
 
 /* ─── File Explorer ───────────────────────────────────────────── */
 function renderFileList(files) {
+  if (!files) {
+    $("fileList").innerHTML = `<div class="file-empty">⚠️ Error loading files</div>`;
+    return;
+  }
+  if (files.length === 0) {
+    $("fileList").innerHTML = `<div class="file-empty">📂 No files found</div>`;
+    return;
+  }
   $("fileList").innerHTML = files.map(path => {
     const ext = path.split(".").pop().toLowerCase();
     const extCls = getExtClass(path);
@@ -216,7 +289,7 @@ function filterFiles() {
 /* ─── File Explain Modal ──────────────────────────────────────── */
 async function explainFile(filePath) {
   $("modalFileName").textContent = filePath;
-  $("modalBody").innerHTML = `<div style="color:var(--text-muted)">Analyzing with LLM...</div>`;
+  $("modalBody").innerHTML = `<div style="color:var(--text-muted);font-size:13px;">Summarizing file...</div>`;
   $("explainModal").classList.remove("hidden");
 
   try {
@@ -226,7 +299,9 @@ async function explainFile(filePath) {
       body: JSON.stringify({ url: currentUrl, file_path: filePath }),
     });
     const data = await res.json();
-    $("modalBody").innerHTML = parseMarkdown(data.explanation || "No explanation generated.");
+    // Plain prose — just wrap in a styled paragraph, no markdown parsing needed
+    const summary = data.explanation || "No summary generated.";
+    $("modalBody").innerHTML = `<p style="color:var(--text-muted);font-size:13px;line-height:1.8;">${summary}</p>`;
   } catch (e) {
     $("modalBody").innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
   }

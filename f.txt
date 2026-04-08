@@ -1,0 +1,29 @@
+https://github.com/rashiii5/Shieldly
+
+https://github.com/rashiii5/VisionPoseGames
+
+https://github.com/pradeepsinghnitk/Hybrid-Approach-for-IDS
+
+https://github.com/Mjrovai/OpenCV-Face-Recognition
+
+https://github.com/techwithtim/OpenCV-Tutorials
+
+
+
+now i want you to give me the following, dont make a doc, 
+
+Title of the Project
+Abstract (In not more than 200 words.)
+Keywords – 6 in Alphabetical Order
+Introduction (Not more than 2 Pages, Ensure that citations are given, Refer 2021 to 2026 Referred Journal Papers only.)
+Literature Review (Not more than 1 Page, No duplication of References)
+Problem Statement
+Scope
+Objectives – Not more than 4 objectives
+Methodology / Framework / Architecture / Process / Algorithm (Diagrams wherever required)
+Experimental Setup
+Implementation
+Results
+Conclusion
+References
+NOTE: Justification of the Text is mandatory throughout

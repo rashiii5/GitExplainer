@@ -165,18 +165,18 @@ def explain_module(
 
     code_sample = "\n\n".join(c["raw_code"][:400] for c in file_chunks[:8])
 
-    system = "You are an expert software engineer. Explain what this module does clearly."
+    system = (
+        "You are a sharp senior engineer. Given a source file, write a crisp summary "
+        "in exactly 3-4 sentences. Cover: what the file does, its key functions/classes, "
+        "and how it fits into the project. No bullet points, no headers, no filler. Plain prose only."
+    )
     user = f"""File: {file_path}
 Repository: {repo_meta.get('name')}
 
 Code:
 {code_sample}
 
-Explain:
-1. **Purpose** of this module
-2. **Key functions/classes** and what they do
-3. **How it connects** to the rest of the project
-4. **Important patterns** used"""
+Write a 3-4 sentence plain prose summary of this file."""
 
     return _call_llm(system, user, max_tokens=700)
 
