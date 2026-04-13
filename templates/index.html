@@ -138,30 +138,9 @@
           </div>
         </div>
 
-        <!-- File Explorer -->
-        <div class="card file-card" id="fileCard">
-          <div class="card-header">
-            <span class="card-icon">◧</span>
-            <h2>File Explorer</h2>
-            <input type="text" class="file-search" id="fileSearch" placeholder="Filter files..." oninput="filterFiles()" />
-          </div>
-          <div class="file-list" id="fileList"></div>
-        </div>
-
       </div>
     </div>
   </section>
-
-  <!-- ─── FILE EXPLAIN MODAL ─── -->
-  <div class="modal-overlay hidden" id="explainModal">
-    <div class="modal">
-      <div class="modal-header">
-        <span class="modal-file" id="modalFileName">file.py</span>
-        <button class="modal-close" onclick="closeModal()">✕</button>
-      </div>
-      <div class="modal-body markdown-body" id="modalBody">Analyzing...</div>
-    </div>
-  </div>
 
   <script src="/static/js/app.js"></script>
 </body>

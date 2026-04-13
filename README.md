@@ -49,32 +49,19 @@ GitHub URL
 └─────────────────────────────────────────────────────┘
 ```
 
-## Setup
+---
 
-### 1. Clone / navigate to the project
-```bash
-cd repo-explainer
-```
+## Features
 
-### 2. Create virtual environment
-```bash
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-```
-
-### 3. Configure environment
-```bash
-cp .env.example .env
-# Edit .env — add GROQ_API_KEY and optionally GITHUB_TOKEN
-```
-
-### 4. Run
-```bash
-chmod +x run.sh
-./run.sh
-```
-
-Then open **http://localhost:5000**
+- **MCP-based GitHub access** — structured tool calls via Model Context Protocol
+- **Tree-sitter AST parsing** — semantically accurate code chunking for Python + JS
+- **CodeBERT embeddings** — code-aware 768-dim vectors (not generic text embeddings)
+- **FAISS cosine search** — sub-millisecond retrieval over thousands of chunks
+- **RAG + Groq LLaMA** — grounded, citation-backed code explanations
+- **Session caching** — re-analyzing the same repo loads from disk instantly
+- **Interactive Q&A** — ask anything about the codebase
+- **File-level explanation** — click any file for an LLM-generated module breakdown
+- **Dependency analysis** — extracted import graphs across all source files
 
 ---
 
@@ -114,15 +101,3 @@ repo-explainer/
     ├── css/style.css
     └── js/app.js
 ```
-
-## Features
-
-- **MCP-based GitHub access** — structured tool calls via Model Context Protocol
-- **Tree-sitter AST parsing** — semantically accurate code chunking for Python + JS
-- **CodeBERT embeddings** — code-aware 768-dim vectors (not generic text embeddings)
-- **FAISS cosine search** — sub-millisecond retrieval over thousands of chunks
-- **RAG + Groq LLaMA** — grounded, citation-backed code explanations
-- **Session caching** — re-analyzing the same repo loads from disk instantly
-- **Interactive Q&A** — ask anything about the codebase
-- **File-level explanation** — click any file for an LLM-generated module breakdown
-- **Dependency analysis** — extracted import graphs across all source files
